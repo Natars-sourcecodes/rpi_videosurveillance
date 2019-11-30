@@ -16,16 +16,18 @@
 						//Listing des fichiers présents dans le dossier "camera"
 						$listeEnregistrement = scandir('./camera');
 
+						//Affichage de la liste des enregistrements
+						echo '<table>';
 						foreach($listeEnregistrement as $enregistrement)
 						{
 							if($enregistrement != '.' && $enregistrement != '..')
 							{
-								echo '<p>';
-								echo "$enregistrement";
-								echo '<\p>';
+								echo '<tr>';
+								echo "<p>$enregistrement</p>";
+								echo '</tr>';
 							}
 						}
-
+						echo '</table>';
 					?>
 				</div>
 			</div>
