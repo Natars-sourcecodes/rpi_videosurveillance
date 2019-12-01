@@ -47,9 +47,6 @@
 							}
 						}
 						echo '</tr></table>';
-
-						echo "quotient: ". intdiv($nombreElementTableau, $nombreColonneTableau);
-						echo " reste: ". $nombreElementTableau % $nombreColonneTableau;
 					?>
 				</div>
 			</div>
