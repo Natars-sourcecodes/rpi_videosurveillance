@@ -41,7 +41,7 @@
 								}
 
 								echo '<td>';
-								echo "<p>$enregistrement</p>";
+								echo '<a href="camera/'.$enregistrement.'">'.$enregistrement.'</a>';
 								echo '</td>';
 								$numeroColonne++; //On passe à la colonne suivante
 							}
