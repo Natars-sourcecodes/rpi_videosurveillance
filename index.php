@@ -41,7 +41,8 @@
 								}
 
 								echo '<td>';
-								echo '<a href="camera/'.$enregistrement.'">'.$enregistrement.'</a>';
+								echo '<video src="camera/'.$enregistrement.'" controls >Erreur de lecture de la vidéo</video><br />';
+								echo '<a href="camera/'.$enregistrement.'">Télécharger la vidéo</a>';
 								echo '</td>';
 								$numeroColonne++; //On passe à la colonne suivante
 							}
