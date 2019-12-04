@@ -10,6 +10,9 @@ Author URI: https://vikpe.org/
 /* standard elements */
 table {
 	border-collapse: collapse;
+	margin: auto;
+	margin-top: 20px;
+	margin-bottom: 20px;
 }
 
 table a {
@@ -17,10 +20,13 @@ table a {
 }
 
 td, th {
-	border: 1px solid black;
+	border: 1px solid none;
 	padding: 5px 10px 5px 10px;
 }
 
+tr{
+	height: 400px;
+}
 a {
 	color: #000;
 	text-decoration: none;
@@ -33,7 +39,7 @@ body {
 	font: normal 0.6em sans-serif,Arial;
 }
 .gfx a {
-	background: #F5F5F5 url(img/bright_pixel.gif) no-repeat; display: block; height: 240px;
+	background: #F5F5F5 url(img/bright_pixel-1100px.gif) no-repeat; display: block; height: 240px;
 }
 
 /* header */
@@ -51,7 +57,7 @@ body {
 	border-color: #E4E4E4 #CFCFCF #CCC #CFCFCF;
 	margin: 20px auto 4px auto;
 	text-align: left;
-	width: 620px;
+	width: 1120px;
 }
 .container {
 	margin: 10px;
@@ -87,7 +93,13 @@ body {
 }
 .content h1 {
 	margin: 0;
-	font: bold 1.1em sans-serif,Arial;
+	font: bold 2em sans-serif,Arial;
+	color: #666;
+}
+.content h2 {
+	margin: 0;
+	margin-bottom: 10px;
+	font: bold 1.4em sans-serif,Arial;
 	color: #666;
 }
 .content p {
