@@ -1,3 +1,4 @@
+<?php error_reporting(E_ALL); ini_set("display_errors", 1); ?>
 <!DOCTYPE html>
 <html>
     <?php include("include/header.php"); ?>
@@ -39,16 +40,16 @@
 									echo "</tr><tr>";
 									$numeroColonne = 0;
 								}
-
-								echo '<td>';
-								echo '<video src="camera/'.$enregistrement.'" controls width=320>Erreur de lecture de la vidéo</video><br />';
+									echo '<td>';
+								echo '<h2>'.date("d/m/Y H:i:s", filemtime('./camera/'.$enregistrement)).'</h2>';
+								echo '<video src="camera/'.$enregistrement.'" controls width=440>Erreur de lecture de la vidéo</video><br />';
 								echo '<a href="camera/'.$enregistrement.'">Télécharger la vidéo</a>';
 								echo '</td>';
 								$numeroColonne++; //On passe à la colonne suivante
 							}
 						}
 						echo '</tr></table>';
-					?>
+						?>
 				</div>
 			</div>
 			<?php include("include/footer.php") ?>
