@@ -81,12 +81,6 @@
 						$nombreElementTableau = count($listeEnregistrement); //On compte le nombre d'éléments du tableau
 						$nombreElementTableau -= 2; //On décompte le '.' et le '..' de la liste des éléments
 
-						$nombreLigneTableau = intdiv($nombreElementTableau, $nombreColonneTableau);
-						if(($nombreElementTableau % $nombreColonneTableau) > 0) //On détermine le nombre de ligne du tableau
-						{
-							$nombreLigneTableau++; //Si besoin, on rajoute une ligne pour mettre les éléments restants
-						}
-
 						$numeroColonne = 0; //Numéro de colonne où va être positionné l'élément
 						foreach($listeEnregistrement as $enregistrement)
 						{
