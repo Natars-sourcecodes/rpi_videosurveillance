@@ -14,6 +14,18 @@
 				<div class="item">
 					<h1>Liste des enregistrements<br /></h1>
 					
+					<form method="post" action="index.php">
+						<label for="temps">Intervalle d'affichage des enregistrements: <label>
+						<select name="temps" id="temps">
+							<option value="1j">1 jour</option>
+							<option value="4h">4 heures</option>
+							<option value="2h">2 heures</option>
+							<option value="1h">1 heure</option>
+							<option value="30min">30 minutes</option>
+							<option value="15min">15 minutes</option>
+						</select>
+					</form>
+
 					<?php
 						//Listing des fichiers présents dans le dossier "camera"
 						$listeEnregistrement = scandir('./camera');
