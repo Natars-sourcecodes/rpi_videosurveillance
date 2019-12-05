@@ -13,19 +13,63 @@
 			<div class="content">
 				<div class="item">
 					<h1>Liste des enregistrements<br /></h1>
-					
+
+					<!-- FORMULAIRE DE FILTRAGE DES ENREGISTREMENT PAR DATE -->
 					<form method="post" action="index.php">
-						<label for="temps">Intervalle d'affichage des enregistrements: <label>
-						<select name="temps" id="temps">
-							<option value="1j">1 jour</option>
-							<option value="4h">4 heures</option>
-							<option value="2h">2 heures</option>
-							<option value="1h">1 heure</option>
-							<option value="30min">30 minutes</option>
-							<option value="15min">15 minutes</option>
+						<label for="intervalle">Intervalle d'affichage des enregistrements: <label>
+						<select name="intervalle" id="intervalle">
+							<option value=24>1 jour</option>
+							<option value=12>12 heures</option>
+							<option value=4>4 heures</option>
+							<option value=2>2 heures</option>
+							<option value=1 selected>1 heure</option>
+							<option value=0.5>30 minutes</option>
+							<option value=0.25>15 minutes</option>
 						</select>
+						<input type="submit" value="Filtrer" />
 					</form>
 
+					<!-- SCRIPT D'ANALYSE DU FORMULAIRE DE FILTRAGE -->
+					<?php
+						if(isset($_POST['intervalle']))
+						{
+							switch ($_POST['intervalle'])
+							{
+								case 24:
+									$intervalle = "1j";
+								break;
+
+								case 12:
+									$intervalle = "12h";
+								break;
+
+								case 4:
+									$intervalle = "4h";
+								break;
+
+								case 2:
+									$intervalle = "2h";
+								break;
+
+								case 1:
+									$intervalle = "1h";
+								break;
+
+								case 0.5:
+									$intervalle = "30min";
+								break;
+
+								case 0.25:
+									$intervalle = "15min";
+								break;
+
+								default:
+									$intervalle = "1h";
+							}
+						}
+					?>
+
+					<!-- SCRIPT D'AFFICHAGE DES ENREGISTREMENTS -->
 					<?php
 						//Listing des fichiers présents dans le dossier "camera"
 						$listeEnregistrement = scandir('./camera');
