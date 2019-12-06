@@ -18,11 +18,12 @@
 					<form method="post" action="index.php">
 						<label for="intervalle">Intervalle d'affichage des enregistrements: <label>
 						<select name="intervalle" id="intervalle">
+							<option value=-1 selected>------</option>
 							<option value=24>1 jour</option>
 							<option value=12>12 heures</option>
 							<option value=4>4 heures</option>
 							<option value=2>2 heures</option>
-							<option value=1 selected>1 heure</option>
+							<option value=1>1 heure</option>
 							<option value=0.5>30 minutes</option>
 							<option value=0.25>15 minutes</option>
 						</select>
@@ -35,54 +36,86 @@
 						{
 							switch ($_POST['intervalle'])
 							{
+								case -1:
+									$intervalleMax = -1;
+									$filtrage = 'Aucun';
+								break;
+
 								case 24:
-									$intervalle = "1j";
+									$intervalleMax = 86400;
+									$filtrage = '1 jour';
 								break;
 
 								case 12:
-									$intervalle = "12h";
+									$intervalleMax = 43200;
+									$filtrage = '12 heures';
 								break;
 
 								case 4:
-									$intervalle = "4h";
+									$intervalleMax = 14400;
+									$filtrage = '4 heures';
 								break;
 
 								case 2:
-									$intervalle = "2h";
+									$intervalleMax = 7200;
+									$filtrage = '2 heures';
 								break;
 
 								case 1:
-									$intervalle = "1h";
+									$intervalleMax = 3600;
+									$filtrage = '1 heure';
 								break;
 
 								case 0.5:
-									$intervalle = "30min";
+									$intervalleMax = 1800;
+									$filtrage = '30 minutes';
 								break;
 
 								case 0.25:
-									$intervalle = "15min";
+									$intervalleMax = 900;
+									$filtrage = '15 minutes';
 								break;
 
 								default:
-									$intervalle = "1h";
+									$intervalleMax = -1; //filtrage 1h si choix non-valide
+									$filtrage = 'aucun';
 							}
 						}
-					?>
+						else
+						{
+							$intervalleMax = -1; //Par défaut, aucun filtrage
+							$filtrage = 'aucun';
+						}
 
-					<!-- SCRIPT D'AFFICHAGE DES ENREGISTREMENTS -->
-					<?php
+						echo '<br />Filtrage actuel: '.$filtrage;
+
 						//Listing des fichiers présents dans le dossier "camera"
 						$listeEnregistrement = scandir('./camera');
 
+						//Listing des fichiers restants une fois le fitrage fait
+						$listeEnregistrementFiltre = array();
+
+						foreach($listeEnregistrement as $fichier)
+						{ //On calcule l'intervalle de temps entre la dernièrem modification de chaque fichier et maintenant
+							if($fichier != '.' && $fichier != '..')
+							{
+								$dateDerniereModification = filemtime('./camera/'.$fichier);
+								$intervalleDerniereModification = time() - $dateDerniereModification;
+
+								if($intervalleDerniereModification <= $intervalleMax OR $intervalleMax == -1)
+								{ //Les fichiers valides sont mis dans un tableau spécifique
+									array_unshift($listeEnregistrementFiltre, $fichier);
+								}
+							}
+							sort($listeEnregistrementFiltre);
+						}
+						
 						//Affichage de la liste des enregistrements dans un tableau
 						echo '<table><tr>';
 						$nombreColonneTableau = 2;
 
-						$nombreElementTableau = count($listeEnregistrement); //On compte le nombre d'éléments du tableau
-						$nombreElementTableau -= 2; //On décompte le '.' et le '..' de la liste des éléments
-
 						$numeroColonne = 0; //Numéro de colonne où va être positionné l'élément
-						foreach($listeEnregistrement as $enregistrement)
+						foreach($listeEnregistrementFiltre as $enregistrement)
 						{
 							if($enregistrement != '.' && $enregistrement != '..')
 							{
@@ -93,7 +126,7 @@
 								}
 									echo '<td>';
 								echo '<h2>'.date("d/m/Y H:i:s", filemtime('./camera/'.$enregistrement)).'</h2>';
-								echo '<video src="camera/'.$enregistrement.'" controls width=440>Erreur de lecture de la vidéo</video><br />';
+								echo '<video src="camera/'.$enregistrement.'" controls preload=none width=440>Erreur de lecture de la vidéo</video></br >';
 								echo '<a href="camera/'.$enregistrement.'">Télécharger la vidéo</a>';
 								echo '</td>';
 								$numeroColonne++; //On passe à la colonne suivante
