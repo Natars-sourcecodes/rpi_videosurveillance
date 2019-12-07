@@ -16,7 +16,7 @@
 
 					<!-- FORMULAIRE DE FILTRAGE DES ENREGISTREMENT PAR DATE -->
 					<form method="post" action="index.php">
-						<label for="intervalle">Intervalle d'affichage des enregistrements: <label>
+						<label for="intervalle">Afficher les enregistrements depuis: <label>
 						<select name="intervalle" id="intervalle">
 							<option value=-1 selected>------</option>
 							<option value=24>1 jour</option>
