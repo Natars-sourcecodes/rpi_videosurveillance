@@ -111,7 +111,7 @@
 						}
 						
 						//Affichage de la liste des enregistrements dans un tableau
-						echo '<table><tr>';
+						echo '<table><tr class="enregistrement">';
 						$nombreColonneTableau = 2;
 
 						$numeroColonne = 0; //Numéro de colonne où va être positionné l'élément
@@ -121,7 +121,7 @@
 							{
 								if($numeroColonne >= $nombreColonneTableau)
 								{ //Si toutes les colonnes d'une ligne sont remplies, on passe à la suivante
-									echo "</tr><tr>";
+									echo '</tr><tr class="enregistrement">';
 									$numeroColonne = 0;
 								}
 									echo '<td>';
