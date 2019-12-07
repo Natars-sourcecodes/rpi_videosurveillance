@@ -31,6 +31,15 @@ a {
 	color: #000;
 	text-decoration: none;
 }
+
+span {
+	margin-left: 30px;
+}
+
+span.small {
+	margin-left: 15px;
+}
+
 body {
 	background: #CCC url(img/bg.gif) repeat-y fixed bottom center;
 	color: #333;
