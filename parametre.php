@@ -64,9 +64,13 @@
 								</td>
 								<td>
 									<label><h2>Retournement horizontal</h2></label>
+									<span class="small"><input type="radio" name="retourneHorizontal" value="oui" id="oui" /><label>Oui</label></span>
+									<span><input type="radio" name="retourneHorizontal" value="non" id="non" checked/><label>Non</label></span>
 								</td>
 								<td>
 									<label><h2>Retournement vertical</h2></label>
+									<span class="small"><input type="radio" name="retourneVertical" value="oui" id="oui" /><label>Oui</label></span>
+									<span><input type="radio" name="retourneVertical" value="non" id="non" checked /><label>Non</label></span>
 								</td>
 							</tr>
 						</table>
