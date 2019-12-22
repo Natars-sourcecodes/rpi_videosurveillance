@@ -18,14 +18,21 @@
 					<form method="post" action="index.php">
 						<label for="intervalle">Afficher les enregistrements depuis: <label>
 						<select name="intervalle" id="intervalle">
-							<option value=-1 selected>------</option>
-							<option value=24>1 jour</option>
-							<option value=12>12 heures</option>
-							<option value=4>4 heures</option>
-							<option value=2>2 heures</option>
-							<option value=1>1 heure</option>
-							<option value=0.5>30 minutes</option>
-							<option value=0.25>15 minutes</option>
+							<?php
+								//Connexion à la base de données et récupération des choix disponibles
+								try {
+									$bdd = new PDO('mysql:host=localhost;dbname=videosurveillance;charset=utf8', '', '');
+								}
+								catch (Exception $e) { //En cas d'echec de connexion, seul le choix "ERREUR" est disponible
+									echo '<option value=-1 selected>ERREUR</option>';
+								}
+
+								$reponseSQL = $bdd->query('SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "intervalle"');
+								while($optionMenu = $reponseSQL->fetch())
+								{ //Pour chaque résultat, on génère une option dans le menu déroulant
+									echo "<option value=".$optionMenu['choix'].">".$optionMenu['titre']."</option>";
+								}
+							?>
 						</select>
 						<input type="submit" value="Filtrer" />
 					</form>
@@ -34,60 +41,35 @@
 					<?php
 						if(isset($_POST['intervalle']))
 						{
-							switch ($_POST['intervalle'])
-							{
-								case -1:
-									$intervalleMax = -1;
-									$filtrage = 'Aucun';
-								break;
+							try{ //On se conencte à la base de données et on vérifie que le choix fait par l'utilisateur existe
+								$bdd = new PDO('mysql:host=localhost;dbname=videosurveillance;charset=utf8', '', '');
+							}
+							catch (Exception $e) {
+								die('Erreur: '.$e->getMessage());
+							}
 
-								case 24:
-									$intervalleMax = 86400;
-									$filtrage = '1 jour';
-								break;
+							//On compte le nombre de fois que où le choix de l'utilisateur apparaît
+							//La table ne contenant aucun doublon, la valeur 1 est retournée si le choix est référencé, 0 dans le cas contraire
+							$reponseSQL = $bdd->prepare('SELECT count(choix) AS "resultat", nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "intervalle" AND choix = ?');
+							$reponseSQL->execute(array($_POST['intervalle']));
 
-								case 12:
-									$intervalleMax = 43200;
-									$filtrage = '12 heures';
-								break;
-
-								case 4:
-									$intervalleMax = 14400;
-									$filtrage = '4 heures';
-								break;
-
-								case 2:
-									$intervalleMax = 7200;
-									$filtrage = '2 heures';
-								break;
-
-								case 1:
-									$intervalleMax = 3600;
-									$filtrage = '1 heure';
-								break;
-
-								case 0.5:
-									$intervalleMax = 1800;
-									$filtrage = '30 minutes';
-								break;
-
-								case 0.25:
-									$intervalleMax = 900;
-									$filtrage = '15 minutes';
-								break;
-
-								default:
-									$intervalleMax = -1; //filtrage 1h si choix non-valide
-									$filtrage = 'aucun';
+							$occurence = $reponseSQL->fetch();
+							if($occurence['resultat'] == 1) { //En cas de validation du choix de l'utilisateur, on complète les variables avec les paramètres correspondants
+								$intervalleMax = $_POST['intervalle'];
+								$filtrage = $occurence['titre'];
+							}
+							else { //Si aucune occurence est trouvé, on applique le filtrage par défaut (càd aucun)
+								$intervalleMax = -1;
+								$filtrage = "Aucun";
 							}
 						}
 						else
 						{
 							$intervalleMax = -1; //Par défaut, aucun filtrage
-							$filtrage = 'aucun';
+							$filtrage = 'Aucun';
 						}
 
-						echo '<br />Filtrage actuel: '.$filtrage;
+								echo '<br />Filtrage actuel: '.$filtrage;
 
 						//Listing des fichiers présents dans le dossier "camera"
 						$listeEnregistrement = scandir('./camera');
@@ -96,7 +78,7 @@
 						$listeEnregistrementFiltre = array();
 
 						foreach($listeEnregistrement as $fichier)
-						{ //On calcule l'intervalle de temps entre la dernièrem modification de chaque fichier et maintenant
+						{ //On calcule l'intervalle de temps entre la dernière modification de chaque fichier et maintenant
 							if($fichier != '.' && $fichier != '..')
 							{
 								$dateDerniereModification = filemtime('./camera/'.$fichier);
