@@ -49,14 +49,44 @@
 								</td>
 								<td>
 									<label><h2>Mode d'exposition</h2></label>
+									<select name="exposition" id="exposition">
+                                                                                <?php
+                                                                                        $requeteSQL = 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "parametreCameraExposition"';
+                                                                                        $resultat = requeteSQL('', '', $requeteSQL, array());
+
+                                                                                        foreach ($resultat as $optionMenuDeroulant) {
+                                                                                                echo "<option value=".$optionMenuDeroulant['choix'].">".$optionMenuDeroulant['titre']."</option>";
+                                                                                        }
+                                                                                ?>
+                                                                        </select>
 								</td>
 								<td>
 									<label><h2>Balance des blancs</h2></label>
+									<select name="balanceBlanc" id="balanceBlanc">
+                                                                                <?php
+                                                                                        $requeteSQL = 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "parametreCameraBalanceBlanc"';
+                                                                                        $resultat = requeteSQL('', '', $requeteSQL, array());
+
+                                                                                        foreach ($resultat as $optionMenuDeroulant) {
+                                                                                                echo "<option value=".$optionMenuDeroulant['choix'].">".$optionMenuDeroulant['titre']."</option>";
+                                                                                        }
+                                                                                ?>
+                                                                        </select>
 								</td>
 							</tr>
 							<tr>
 								<td>
 									<label><h2>Effet</h2></label>
+									<select name="effet" id="effet">
+                                                                                <?php
+                                                                                        $requeteSQL = 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "parametreCameraEffet"';
+                                                                                        $resultat = requeteSQL('', '', $requeteSQL, array());
+
+                                                                                        foreach ($resultat as $optionMenuDeroulant) {
+                                                                                                echo "<option value=".$optionMenuDeroulant['choix'].">".$optionMenuDeroulant['titre']."</option>";
+                                                                                        }
+                                                                                ?>
+                                                                        </select>
 								</td>
 								<td>
 									<label><h2>Rotation</h2></label>
