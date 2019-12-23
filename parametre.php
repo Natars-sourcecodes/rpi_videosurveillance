@@ -25,7 +25,7 @@
 										<select name="exposition" id="exposition">
 										<?php
 											$requeteSQL = 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "parametreCameraExposition"';
-											$resultat = requeteSQL('', '', $requeteSQL, array());
+											$resultat = requeteSQL('php_formulaire', 'php84', $requeteSQL, array());
 											
 											foreach ($resultat as $optionMenuDeroulant) {
 												echo "<option value=".$optionMenuDeroulant['choix'].">".$optionMenuDeroulant['titre']."</option>";
@@ -39,7 +39,7 @@
 									<select name="balanceBlanc" id="balanceBlanc">
 										<?php
 											$requeteSQL = 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "parametreCameraBalanceBlanc"';
-											$resultat = requeteSQL('', '', $requeteSQL, array());
+											$resultat = requeteSQL('php_formulaire', 'php84', $requeteSQL, array());
 											
 											foreach ($resultat as $optionMenuDeroulant) {
 												echo "<option value=".$optionMenuDeroulant['choix'].">".$optionMenuDeroulant['titre']."</option>";
@@ -53,7 +53,7 @@
 									<select name="effet" id="effet">
 										<?php
 											$requeteSQL = 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "parametreCameraEffet"';
-											$resultat = requeteSQL('', '', $requeteSQL, array());
+											$resultat = requeteSQL('php_formulaire', 'php84', $requeteSQL, array());
 											
 											foreach ($resultat as $optionMenuDeroulant) {
 												echo "<option value=".$optionMenuDeroulant['choix'].">".$optionMenuDeroulant['titre']."</option>";
@@ -64,7 +64,7 @@
 								<?php
 									//On récupère la liste des curseurs à générer
 									$requeteSQL = 'SELECT nomCurseur AS nom, titreCurseur AS titre, minimum, maximum, pas, valeurParDefaut FROM curseurFormulaire WHERE formulaire = "parametreCamera"';
-									$resultat = requeteSQL('', '', $requeteSQL, array());
+									$resultat = requeteSQL('php_formulaire', 'php84', $requeteSQL, array());
 
 									$numeroColonne = 3; //Le nombre d'éléments déjà présents dans le tableau de paramétrages
 
@@ -82,12 +82,16 @@
 										echo '<input type="range" name='.$curseur['nom'].' min='.$curseur['minimum'].' max='.$curseur['maximum'].' step='.$curseur['pas'].' value='.$curseur['valeurParDefaut'].' />';
 										echo "</td>";
 									}
+
+									//On récupère la liste des cases à cocher à générer
 									$requeteSQL = 'SELECT nom, titre, valeurParDefaut FROM caseACocher WHERE formulaire = "parametreCamera"';
-									$resultat = requeteSQL('', '', $requeteSQL, array());
+									$resultat = requeteSQL('php_formulaire', 'php84', $requeteSQL, array());
 
 									foreach ($resultat as $caseACocher) {
 										echo '<td>';
 										echo '<label><h2>'.$caseACocher['titre'].'</h2></label><br />';
+
+										//Pour chaque case, on la coche ou non en fonction de la valeur par défaut spécifié dans la base de données
 										if ($caseACocher['valeurParDefaut']) {
 											echo '<span class="long"><input type="checkbox" name='.$caseACocher['nom'].' id='.$caseACocher['nom'].' checked /></span>';
 										}
