@@ -1,5 +1,5 @@
 <?php
-	function requeteSQL($utilisateur, $motDePasse, $requeteSQL)
+	function requeteSQL($utilisateur, $motDePasse, $requeteSQL, $listeParametreRequeteSQL)
 	{
 		//Connexion à la base de données
 		try {
@@ -9,8 +9,11 @@
 			return $e;
 		}
 
-		//Transmission de la requête SQL et récupération des résultats
-		$reponseSQL = $bdd->query($requeteSQL);
+		//Préparation de la requête SQL (plus sécurisé face aux risque d'injection SQL) et transmission du tableau de variable passé en argument
+		$reponseSQL = $bdd->prepare($requeteSQL);
+		$reponseSQL->execute($listeParametreRequeteSQL);
+
+
 		$donneeReponseSQL = $reponseSQL->fetchAll();
 		$reponseSQL->closeCursor();
 
