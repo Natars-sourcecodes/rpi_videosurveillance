@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
     <?php include("include/header.php"); ?>
-
+    <?php include("include/fonction.php"); ?>
     <body>
 	<div class="main">
 		<div class="container">
@@ -21,89 +21,86 @@
 						<table>
 							<tr>
 								<td>
-									<label><h2>Finesse de l'image</h2></label>
-									<input type="range" name="finesse" min="-100" max="100" step="1" />
-								</td>
-								<td>
-									<label><h2>Contraste</h2></label>
-									<input type="range" name="contraste" min=-100" max="100" step="1" />
-								</td>
-								
-								<td>
-									<label><h2>Luminosité</h2></label>
-									<input type="range" name="luminosite" min="0" max="100" step="1" />
-								</td>
-								<td>
-									<label><h2>Saturation</h2></label>
-									<input type="range" name="contraste" min="-100" max="100" step="1" />
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<label><h2>ISO</h2></label>
-									<input type="range" name="iso" min="100" max="800" step="1" />
-								</td>
-								<td>
-									<label><h2>Compensation de la luminosité</h2></label>
-									<input type="range" name="compensationLuminosite" min="-10" max="10" step="1" />
-								</td>
-								<td>
 									<label><h2>Mode d'exposition</h2></label>
-									<select name="exposition" id="exposition">
-                                                                                <?php
-                                                                                        $requeteSQL = 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "parametreCameraExposition"';
-                                                                                        $resultat = requeteSQL('', '', $requeteSQL, array());
+										<select name="exposition" id="exposition">
+										<?php
+											$requeteSQL = 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "parametreCameraExposition"';
+											$resultat = requeteSQL('', '', $requeteSQL, array());
+											
+											foreach ($resultat as $optionMenuDeroulant) {
+												echo "<option value=".$optionMenuDeroulant['choix'].">".$optionMenuDeroulant['titre']."</option>";
+											}
+										?>
+									</select>
 
-                                                                                        foreach ($resultat as $optionMenuDeroulant) {
-                                                                                                echo "<option value=".$optionMenuDeroulant['choix'].">".$optionMenuDeroulant['titre']."</option>";
-                                                                                        }
-                                                                                ?>
-                                                                        </select>
 								</td>
 								<td>
-									<label><h2>Balance des blancs</h2></label>
+<label><h2>Balance des blancs</h2></label>
 									<select name="balanceBlanc" id="balanceBlanc">
-                                                                                <?php
-                                                                                        $requeteSQL = 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "parametreCameraBalanceBlanc"';
-                                                                                        $resultat = requeteSQL('', '', $requeteSQL, array());
+										<?php
+											$requeteSQL = 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "parametreCameraBalanceBlanc"';
+											$resultat = requeteSQL('', '', $requeteSQL, array());
+											
+											foreach ($resultat as $optionMenuDeroulant) {
+												echo "<option value=".$optionMenuDeroulant['choix'].">".$optionMenuDeroulant['titre']."</option>";
+											}
+										?>
+									</select>
 
-                                                                                        foreach ($resultat as $optionMenuDeroulant) {
-                                                                                                echo "<option value=".$optionMenuDeroulant['choix'].">".$optionMenuDeroulant['titre']."</option>";
-                                                                                        }
-                                                                                ?>
-                                                                        </select>
 								</td>
-							</tr>
-							<tr>
 								<td>
 									<label><h2>Effet</h2></label>
 									<select name="effet" id="effet">
-                                                                                <?php
-                                                                                        $requeteSQL = 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "parametreCameraEffet"';
-                                                                                        $resultat = requeteSQL('', '', $requeteSQL, array());
+										<?php
+											$requeteSQL = 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "parametreCameraEffet"';
+											$resultat = requeteSQL('', '', $requeteSQL, array());
+											
+											foreach ($resultat as $optionMenuDeroulant) {
+												echo "<option value=".$optionMenuDeroulant['choix'].">".$optionMenuDeroulant['titre']."</option>";
+											}
+										?>
+									</select>
+								</td>
+								<?php
+									//On récupère la liste des curseurs à générer
+									$requeteSQL = 'SELECT nomCurseur AS nom, titreCurseur AS titre, minimum, maximum, pas, valeurParDefaut FROM curseurFormulaire WHERE formulaire = "parametreCamera"';
+									$resultat = requeteSQL('', '', $requeteSQL, array());
 
-                                                                                        foreach ($resultat as $optionMenuDeroulant) {
-                                                                                                echo "<option value=".$optionMenuDeroulant['choix'].">".$optionMenuDeroulant['titre']."</option>";
-                                                                                        }
-                                                                                ?>
-                                                                        </select>
-								</td>
-								<td>
-									<label><h2>Rotation</h2></label>
-									<input type="range" name="sharpness" min="-100" max="100" step="1" />
-								</td>
-								<td>
-									<label><h2>Retournement horizontal</h2></label>
-									<span class="small"><input type="radio" name="retourneHorizontal" value="oui" id="oui" /><label>Oui</label></span>
-									<span><input type="radio" name="retourneHorizontal" value="non" id="non" checked/><label>Non</label></span>
-								</td>
-								<td>
-									<label><h2>Retournement vertical</h2></label>
-									<span class="small"><input type="radio" name="retourneVertical" value="oui" id="oui" /><label>Oui</label></span>
-									<span><input type="radio" name="retourneVertical" value="non" id="non" checked /><label>Non</label></span>
-								</td>
+									$numeroColonne = 3; //Le nombre d'éléments déjà présents dans le tableau de paramétrages
+
+									//Pour chaque entrée du tableau, on génère un curseur
+									foreach ($resultat as $curseur) {
+										//On limite le tableau à quatre élément par ligne: dès que cette limite est atteinte, on change de ligne
+										if ($numeroColonne == 4) {
+											echo '</tr><tr>'; 
+											$numeroColonne = 0;
+										}	
+										$numeroColonne++;
+
+										echo "<td>";
+										echo "<label><h2>".$curseur['titre']."</h2></label>";
+										echo '<input type="range" name='.$curseur['nom'].' min='.$curseur['minimum'].' max='.$curseur['maximum'].' step='.$curseur['pas'].' value='.$curseur['valeurParDefaut'].' />';
+										echo "</td>";
+									}
+									$requeteSQL = 'SELECT nom, titre, valeurParDefaut FROM caseACocher WHERE formulaire = "parametreCamera"';
+									$resultat = requeteSQL('', '', $requeteSQL, array());
+
+									foreach ($resultat as $caseACocher) {
+										echo '<td>';
+										echo '<label><h2>'.$caseACocher['titre'].'</h2></label><br />';
+										if ($caseACocher['valeurParDefaut']) {
+											echo '<span class="long"><input type="checkbox" name='.$caseACocher['nom'].' id='.$caseACocher['nom'].' checked /></span>';
+										}
+										else {
+											echo '<span class="long"><input type="checkbox" name='.$caseACocher['nom'].' id='.$caseACocher['nom'].' /></span>';
+										}
+										echo '</td>';
+									}
+								?>
 							</tr>
 						</table>
+						<input type="submit" value = "Valider les réglages">
+						<input type="reset" value = "Réinitialiser les réglages">
 					</form>
 
 				</div>
