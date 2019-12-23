@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
     <?php include("include/header.php"); ?>
-
+    <?php include("include/fonction.php"); ?>
     <body>
 	<div class="main">
 		<div class="container">
@@ -19,16 +19,9 @@
 						<label for="intervalle">Afficher les enregistrements depuis: <label>
 						<select name="intervalle" id="intervalle">
 							<?php
-								//Connexion à la base de données et récupération des choix disponibles
-								try {
-									$bdd = new PDO('mysql:host=localhost;dbname=videosurveillance;charset=utf8', '', '');
-								}
-								catch (Exception $e) { //En cas d'echec de connexion, seul le choix "ERREUR" est disponible
-									echo '<option value=-1 selected>ERREUR</option>';
-								}
-
-								$reponseSQL = $bdd->query('SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "intervalle"');
-								while($optionMenu = $reponseSQL->fetch())
+//Connexion à la base de données et récupération des choix disponibles
+								$reponseSQL = requeteSQL('', '', 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "intervalle"');
+								foreach($reponseSQL as $optionMenu)
 								{ //Pour chaque résultat, on génère une option dans le menu déroulant
 									echo "<option value=".$optionMenu['choix'].">".$optionMenu['titre']."</option>";
 								}
@@ -41,26 +34,20 @@
 					<?php
 						if(isset($_POST['intervalle']))
 						{
-							try{ //On se conencte à la base de données et on vérifie que le choix fait par l'utilisateur existe
-								$bdd = new PDO('mysql:host=localhost;dbname=videosurveillance;charset=utf8', '', '');
-							}
-							catch (Exception $e) {
-								die('Erreur: '.$e->getMessage());
-							}
-
 							//On compte le nombre de fois que où le choix de l'utilisateur apparaît
 							//La table ne contenant aucun doublon, la valeur 1 est retournée si le choix est référencé, 0 dans le cas contraire
-							$reponseSQL = $bdd->prepare('SELECT count(choix) AS "resultat", nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "intervalle" AND choix = ?');
-							$reponseSQL->execute(array($_POST['intervalle']));
+							$requeteSQL = 'SELECT count(choix) AS "resultat", nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "intervalle" AND choix = '.$_POST['intervalle'];
+							$reponseSQL = requeteSQL('', '', $requeteSQL);
 
-							$occurence = $reponseSQL->fetch();
-							if($occurence['resultat'] == 1) { //En cas de validation du choix de l'utilisateur, on complète les variables avec les paramètres correspondants
-								$intervalleMax = $_POST['intervalle'];
-								$filtrage = $occurence['titre'];
-							}
-							else { //Si aucune occurence est trouvé, on applique le filtrage par défaut (càd aucun)
-								$intervalleMax = -1;
-								$filtrage = "Aucun";
+							foreach($reponseSQL as $occurence){
+								if($occurence['resultat'] == 1) { //En cas de validation du choix de l'utilisateur, on complète les variables avec les paramètres correspondants
+									$intervalleMax = $_POST['intervalle'];
+									$filtrage = $occurence['titre'];
+								}
+								else { //Si aucune occurence est trouvé, on applique le filtrage par défaut (càd aucun)
+									$intervalleMax = -1;
+									$filtrage = "Aucun";
+								}	
 							}
 						}
 						else
