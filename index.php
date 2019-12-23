@@ -20,7 +20,7 @@
 						<select name="intervalle" id="intervalle">
 							<?php
 //Connexion à la base de données et récupération des choix disponibles
-								$reponseSQL = requeteSQL('', '', 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "intervalle"');
+								$reponseSQL = requeteSQL('', '', 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "intervalle"', array());
 								foreach($reponseSQL as $optionMenu)
 								{ //Pour chaque résultat, on génère une option dans le menu déroulant
 									echo "<option value=".$optionMenu['choix'].">".$optionMenu['titre']."</option>";
@@ -36,8 +36,9 @@
 						{
 							//On compte le nombre de fois que où le choix de l'utilisateur apparaît
 							//La table ne contenant aucun doublon, la valeur 1 est retournée si le choix est référencé, 0 dans le cas contraire
-							$requeteSQL = 'SELECT count(choix) AS "resultat", nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "intervalle" AND choix = '.$_POST['intervalle'];
-							$reponseSQL = requeteSQL('', '', $requeteSQL);
+
+							$requeteSQL = 'SELECT count(choix) AS "resultat", nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "intervalle" AND choix = :intervalle';
+							$reponseSQL = requeteSQL('', '', $requeteSQL, array('intervalle' => $_POST['intervalle']));
 
 							foreach($reponseSQL as $occurence){
 								if($occurence['resultat'] == 1) { //En cas de validation du choix de l'utilisateur, on complète les variables avec les paramètres correspondants
