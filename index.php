@@ -25,7 +25,7 @@
 
 								//Puis, on complète les balises concernées avec la variable $nomChamp
 								echo '<select name='.$nomChamp.' id='.$nomChamp.'>';
-								echo '<label for='.$nomChamp.'>Afficher les enregistrements depuis: <label>';
+								echo '<label for='.$nomChamp.'>Afficher les enregistrements depuis: </label>';
 								foreach($reponseSQL as $optionMenu)
 								{ //Pour chaque résultat, on génère une option dans le menu déroulant
 									echo "<option value=".$optionMenu['choix'].">".$optionMenu['titre']."</option>";
