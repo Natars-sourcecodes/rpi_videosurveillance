@@ -16,33 +16,39 @@
 
 					<!-- FORMULAIRE DE FILTRAGE DES ENREGISTREMENT PAR DATE -->
 					<form method="post" action="index.php">
-						<label for="intervalle">Afficher les enregistrements depuis: <label>
-						<select name="intervalle" id="intervalle">
 							<?php
-//Connexion à la base de données et récupération des choix disponibles
-								$reponseSQL = requeteSQL('', '', 'SELECT choix, nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "intervalle"', array());
+								//Connexion à la base de données et récupération des choix disponibles
+								$reponseSQL = requeteSQL('php_formulaire', 'php84', 'SELECT valeur AS choix, titreChamp AS "titre", nomChamp FROM champFormulaire WHERE formulaire = "filtreAgeEnregistrement"', array());
+
+								//On récupère le nom du champ dans la base de données
+								$nomChamp = $reponseSQL[0]['nomChamp'];
+
+								//Puis, on complète les balises concernées avec la variable $nomChamp
+								echo '<select name='.$nomChamp.' id='.$nomChamp.'>';
+								echo '<label for='.$nomChamp.'>Afficher les enregistrements depuis: <label>';
 								foreach($reponseSQL as $optionMenu)
 								{ //Pour chaque résultat, on génère une option dans le menu déroulant
 									echo "<option value=".$optionMenu['choix'].">".$optionMenu['titre']."</option>";
 								}
+
+								echo '</select>';
 							?>
-						</select>
 						<input type="submit" value="Filtrer" />
 					</form>
 
 					<!-- SCRIPT D'ANALYSE DU FORMULAIRE DE FILTRAGE -->
 					<?php
-						if(isset($_POST['intervalle']))
+						//Pour chaque clés dans la base de données, on vérifie si on l'a reçue de la part de l'utilisateur
+						if(isset($_POST[$nomChamp]))
 						{
 							//On compte le nombre de fois que où le choix de l'utilisateur apparaît
 							//La table ne contenant aucun doublon, la valeur 1 est retournée si le choix est référencé, 0 dans le cas contraire
-
-							$requeteSQL = 'SELECT count(choix) AS "resultat", nomChoix AS "titre" FROM choixMenuDeroulant WHERE menu = "intervalle" AND choix = :intervalle';
-							$reponseSQL = requeteSQL('', '', $requeteSQL, array('intervalle' => $_POST['intervalle']));
+							$requeteSQL = 'SELECT count(nomChamp) AS "resultat", titreChamp AS "titre" FROM champFormulaire WHERE formulaire = "filtreAgeEnregistrement" AND valeur = :intervalle';
+							$reponseSQL = requeteSQL('php_formulaire', 'php84', $requeteSQL, array('intervalle' => $_POST[$nomChamp]));
 
 							foreach($reponseSQL as $occurence){
 								if($occurence['resultat'] == 1) { //En cas de validation du choix de l'utilisateur, on complète les variables avec les paramètres correspondants
-									$intervalleMax = $_POST['intervalle'];
+									$intervalleMax = $_POST[$nomChamp];
 									$filtrage = $occurence['titre'];
 								}
 								else { //Si aucune occurence est trouvé, on applique le filtrage par défaut (càd aucun)
@@ -57,7 +63,7 @@
 							$filtrage = 'Aucun';
 						}
 
-								echo '<br />Filtrage actuel: '.$filtrage;
+						echo '<br />Filtrage actuel: '.$filtrage;
 
 						//Listing des fichiers présents dans le dossier "camera"
 						$listeEnregistrement = scandir('./camera');
