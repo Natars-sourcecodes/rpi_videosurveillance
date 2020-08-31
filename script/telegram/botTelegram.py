@@ -1,124 +1,111 @@
+#Python Telegram Bot
+#Documentation: https://python-telegram-bot.readthedocs.io
+
 import os.path
-import time
-import datetime
-import telepot
-from telepot.loop import MessageLoop
+from datetime import datetime, timezone
+from telegram.ext import Updater, CommandHandler
 
-"""
-After **inserting token** in the source code, run it:
+def cleAPIbot():
+	with open('cleAPI.txt', 'r') as fichierCleAPI:
+		cleAPI = fichierCleAPI.read()
+	return cleAPI
 
-```
-$ python2.7 diceyclock.py
-```
+#Interruption déclenchée à la réception de nouveau messages
+def command_handler(update, context):
+	message = update.message
+	expediteur = message.from_user.username
+	utilisateurValide = utilisateur_autorise(expediteur)
+	commandeRecue = message.text
 
-[Here is a tutorial](http://www.instructables.com/id/Set-up-Telegram-Bot-on-Raspberry-Pi/)
-teaching you how to setup a bot on Raspberry Pi. This simple bot does nothing
-but accepts two commands:
+	#On journalise la commande reçue
+	journaliserMessage(date_utc_vers_local(message.date),expediteur,utilisateurValide,'bot',commandeRecue,datetime.now())
 
-- `/roll` - reply with a random integer between 1 and 6, like rolling a dice.
-- `/time` - reply with the current time, like a clock.
-"""
-#Interruption dans laquelle vont etre traites les commandes recues
-def handle(msg):
-	chat_id = msg['chat']['id']
-	commande = msg['text']
-	expediteur = msg['from']['username']
+	if utilisateurValide == True:
+		#On détermine l'action à faire en fonction de la commande
+		if commandeRecue == '/start':
+			envoyerMessage(update, 'hi')
+		elif commandeRecue == '/stop':
+			envoyerMessage(update, 'bye')
 
-	#On verifie en premier lieu si l'expediteur a le droit ou non
-	#d'executer des commandes
-	expediteurAutorise = verifierExpediteur(expediteur)
+#Fonction chargée de l'envoi de message standardisé à un utilisateur
+def envoyerMessage(update, id_message):
+	message = update.message
+	expediteur = message.from_user.username
 
-	#On journalise toutes les commandes recues
-	journaliserMessage(expediteur, commande, expediteurAutorise)
+	#On envoie le message standard en fonction de l'ID passé en argument
+	if id_message == "hi" :
+		message.reply_text("Bonjour %s" % expediteur)
+		journaliserMessage(datetime.now(),'bot',True,expediteur,'[bonjour]')
 
-	#Si oui, on traite alors la commande recue, sinon on l'ignore
-	if expediteurAutorise == True:
-		traiterCommande(chat_id, commande)
+	elif id_message == "bye":
+		message.reply_text("A bientôt")
+		journaliserMessage(datetime.now(),'bot',True,expediteur,'[bye]')
 
-"""
-		#Envoi d'une photo prise maintenant (provisoirement test.jpg)
-		if commande == '/photo':
-			bot.sendPhoto(chat_id, photo=open('test.jpg', 'rb'))
-"""
+#Fonction servant à enregistrer les activités du chat dans un fichier de log
+def journaliserMessage(date_envoi,expediteur,expediteur_valide,destinataire,message,date_reception=None):
+	nomFichierLOG = 'chat.log'
 
-#Permet d'enregistrer la commande recue dans un fichier de log
-def journaliserMessage(expediteur, commandeRecue, utilisateurAutorise):
-	nomFichierLog = "commandes.log"
+	#On formate correctement les dates
+	date_envoi = date_envoi.isoformat(" ","seconds")
+	if date_reception != None:
+		date_reception = date_reception.isoformat(" ","seconds")
 
-	if os.path.exists(nomFichierLog) != True:
-		with open(nomFichierLog, "w") as fichierLog:
-			fichierLog.write('"Date et heure de l\'evenement","Utilisateur","Commande","Commande autorisee"\n')
+	#On prépare la ligne qui sera enregistrée dans le fichier de log
+	entree_journal_log = '"%s","%s","%s","%s","%s","%s"\n' % (date_envoi,date_reception,expediteur,destinataire,message,expediteur_valide)
 
-	#On prepare ce qui sera ecrit dans le fichier de log
-	texteAEcrire = '"%s","%s","%s","%s"\n' % (str(datetime.datetime.now()), expediteur, commandeRecue, utilisateurAutorise)
+	#Si le fichier de log n'existe pas, on le créé et on inscrit les titres de colonnes
+	if os.path.exists(nomFichierLOG) == False:
+		with open(nomFichierLOG,'w') as fichierLOG:
+			fichierLOG.write('"Date d\'envoi","Date de réception","Expéditeur","Destinataire","Message","Expéditeur autorisé"\n')
 
-	#On ecrit la nouvelle entree ci-dessus
-	with open(nomFichierLog, "a") as fichierLog:
-		fichierLog.write(texteAEcrire)
+	#Écriture de l'entrée dans le journal
+	with open(nomFichierLOG,'a') as fichierLOG:
+		fichierLOG.write(entree_journal_log)
 
-#Permet de controller que l'expediteur est autorise a communiquer avec le bot
-def verifierExpediteur(expediteurRecherche):
-	nomFichierExpediteurAutorise = "whitelist.txt"
-	expediteurTrouve = False
+#Convertit une date/heure UTC en date/heure locale
+def date_utc_vers_local(date_utc):
+	date_locale = date_utc.replace(tzinfo=timezone.utc).astimezone(tz=None)
+	return date_locale.replace(tzinfo=None)
 
-	#On recupere la liste les expediteurs autorises
-	with open(nomFichierExpediteurAutorise, "r") as fichierExpediteurAutorise:
-		listeExpediteur = fichierExpediteurAutorise.readlines()
+#Vérifie si l'utilisateur spécifié est autorisé à dialoguer avec le bot
+def utilisateur_autorise(utilisateurRecherche):
+	nomFichierWhitelist = "whitelist.txt"
 
-	#Pour chacun des expediteurs, on supprime le "\n" et on verifie s'il s'agit
-	#de l'utilisateur recherche
-	for expediteur in listeExpediteur:
-		expediteur = str(expediteur.rstrip())
+	#On récupère la liste des utilisateurs autorisés
+	with open(nomFichierWhitelist, 'r') as fichierWhitelist:
+		listeUtilisateur = fichierWhitelist.readlines()
 
-		#Si trouve, on modifie le booleen dedie
-		if expediteur == expediteurRecherche:
-			expediteurTrouve = True
+	for utilisateur in listeUtilisateur:
+		#On supprime le '\n' au bout de la ligne
+		utilisateur = str(utilisateur.rstrip())
 
-	return expediteurTrouve
+		#S'il s'agit de l'utilisateur recherché, on renvoie True
+		if utilisateur == utilisateurRecherche:
+			return True
 
-def traiterCommande(chat_id, commande):
-	global botActif
-
-	#Modification de l'etat d'activite du bot
-	if commande == '/start':
-		botActif = True
-		bot.sendMessage(chat_id, "Bonjour\nVous pouvez desormais m'envoyer des commandes")
-		print 'Bot actif'
-
-	elif commande == '/stop':
-		botActif = False
-		bot.sendMessage(chat_id, 'A bientot')
-		print 'Bot inactif'
-
-	#Commandes traites seulement si le bot est actif
-	if botActif == True:
-		if commande == '/test':
-			bot.sendMessage(chat_id, 'Bonjour')
-
-		if commande == '/photo':
-			#Declenchement du script de prise de photo
-
-#Declaration du bot avec sa cle API
-bot = telepot.Bot('')
-
-#Declaration de l'interruption
-MessageLoop(bot, handle).run_as_thread()
-print 'En attente de commandes...'
-
-
-
-#variable botActif	==>	Booleen permettant de definir l'etat du bot
-
-#False			==>	Ne traite aucune commande
-#True			==>	Traite les commande recues
-#/start et /stop	==>	Permet d'activer ou non le bot
+	#Sinon, on renvoie False
+	return False
 
 botActif = False
+commandesAutorises = ['start','stop']
 
-while 1:
-	try:
-		time.sleep(10)
+#On essaie de démarrer le bot, en cas d'echec on arrête le script
+try:
+	#Initialisation de l'updater avec la clé API du bot
+	updater = Updater(token=cleAPIbot(), use_context=True)
 
-	except KeyboardInterrupt:
-		print 'A bientot'
-		exit()
+	#Configuration de la capture d'interruptions par le dispatcher
+	dispatcher = updater.dispatcher
+
+	#Ajout des différentes commandes pouvant réagir à l'interruption
+	dispatcher.add_handler(CommandHandler(commandesAutorises, command_handler))
+
+	#Démarrage du bot
+	updater.start_polling()
+	print("Bot démarré, en attente de messages...")
+
+except:
+	print("Erreur d'initialisation du bot, arrêt du script")
+
+#Empêche l'arrêt du script jusqu'à réception d'un signal d'arret (SIGINT, ...)
+updater.idle()
