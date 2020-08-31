@@ -12,6 +12,7 @@ def cleAPIbot():
 
 #Interruption déclenchée à la réception de nouveau messages
 def command_handler(update, context):
+	global botActif
 	message = update.message
 	expediteur = message.from_user.username
 	utilisateurValide = utilisateur_autorise(expediteur)
@@ -22,30 +23,45 @@ def command_handler(update, context):
 
 	if utilisateurValide == True:
 		#On détermine l'action à faire en fonction de la commande
-		if commandeRecue == '/start':
-			envoyerMessage(update, 'hi')
-		elif commandeRecue == '/stop':
-			envoyerMessage(update, 'bye')
+		if commandeRecue == '/start' and botActif == False:
+			botActif = True
+			envoyerMessage(update, 'activation_bot')
+			print('Bot activé')
+
+		elif commandeRecue == '/stop' and botActif == True:
+			botActif = False
+			envoyerMessage(update, 'desactivation_bot')
+			print('Bot désactivé')
+
+		elif commandeRecue == '/statut':
+			if botActif: statutBot = 'activé'
+			else: statutBot = 'désactivé'
+
+			envoyerMessage(update, 'statut_bot', statutBot)
 
 #Fonction chargée de l'envoi de message standardisé à un utilisateur
-def envoyerMessage(update, id_message):
+def envoyerMessage(update, id_message, *parametre):
 	message = update.message
 	expediteur = message.from_user.username
 
 	#On envoie le message standard en fonction de l'ID passé en argument
-	if id_message == "hi" :
-		message.reply_text("Bonjour %s" % expediteur)
-		journaliserMessage(datetime.now(),'bot',True,expediteur,'[bonjour]')
+	if id_message == 'activation_bot' :
+		messageBot = "Bot activé"
 
-	elif id_message == "bye":
-		message.reply_text("A bientôt")
-		journaliserMessage(datetime.now(),'bot',True,expediteur,'[bye]')
+	elif id_message == 'desactivation_bot' :
+		messageBot = "Bot désactivé"
+
+	elif id_message == 'statut_bot':
+		messageBot = "Le bot est actuellement %s" % parametre[0]
+
+	message.reply_text(messageBot)
+	journaliserMessage(datetime.now(),'bot',True,expediteur,messageBot)
 
 #Fonction servant à enregistrer les activités du chat dans un fichier de log
 def journaliserMessage(date_envoi,expediteur,expediteur_valide,destinataire,message,date_reception=None):
 	nomFichierLOG = 'chat.log'
 
-	#On formate correctement les dates
+	#On formate correctement les dates (retrait des millisecondes)
 	date_envoi = date_envoi.isoformat(" ","seconds")
 	if date_reception != None:
 		date_reception = date_reception.isoformat(" ","seconds")
@@ -87,7 +103,7 @@ def utilisateur_autorise(utilisateurRecherche):
 	return False
 
 botActif = False
-commandesAutorises = ['start','stop']
+commandesAutorises = ['start','stop', 'statut']
 
 #On essaie de démarrer le bot, en cas d'echec on arrête le script
 try:
