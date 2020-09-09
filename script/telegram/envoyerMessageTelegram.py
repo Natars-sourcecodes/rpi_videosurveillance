@@ -1,6 +1,7 @@
 #Python Telegram Bot
 #Documentation: https://python-telegram-bot.readthedocs.io
 
+import sys
 import os, os.path
 from datetime import datetime, timezone
 import telegram
@@ -17,6 +18,16 @@ def envoyer_message(id_utilisateur, message):
 	infoDestinataire = bot.getChat(id_utilisateur)
 
 	bot.sendMessage(id_utilisateur, message)
+	journaliser_message(datetime.now(),infoExpediteur.username,infoExpediteur.id,infoDestinataire.username,infoDestinataire.id,message)
+
+def envoyer_photo(id_utilisateur, chemin_vers_la_photo):
+	global bot
+	infoExpediteur = bot.getMe()
+	infoDestinataire = bot.getChat(id_utilisateur)
+
+	bot.send_photo(id_utilisateur, open(chemin_vers_la_photo, 'rb'))
+
+	message = "[photo: %s]" % chemin_vers_la_photo
 	journaliser_message(datetime.now(),infoExpediteur.username,infoExpediteur.id,infoDestinataire.username,infoDestinataire.id,message)
 
 #Fonction servant à enregistrer les activités du chat dans un fichier de log
@@ -36,9 +47,16 @@ def journaliser_message(date_envoi,expediteur,id_expediteur,destinataire,id_dest
 		fichierLOG.write(entree_journal_log)
 
 #l'ID de mon compte Telegram (peut être utilisé comme 'chat_id' pour converser en chat privé avec un utilisateur)
-ID_destinataire = "something"
+id_destinataire = "something"
 
 #Initialisation du bot avec sa clé API
 bot = telegram.Bot(token=cleAPIbot())
 
-envoyer_message(id_destinataire,"test")
+print(str(sys.argv))
+
+#On contrôle les arguments reçus et on adopte le comportement adapté
+if len(sys.argv) > 2: #Contrôle du nombre d'argument reçus (argument n°1: titre du script)
+	if sys.argv[1] == "texte":
+		envoyer_message(id_destinataire,sys.argv[2])
+	if sys.argv[1] == "photo":
+		envoyer_photo(id_destinataire,sys.argv[2])
