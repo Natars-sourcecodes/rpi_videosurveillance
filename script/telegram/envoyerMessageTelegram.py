@@ -47,7 +47,7 @@ def journaliser_message(date_envoi,expediteur,id_expediteur,destinataire,id_dest
 		fichierLOG.write(entree_journal_log)
 
 #l'ID de mon compte Telegram (peut être utilisé comme 'chat_id' pour converser en chat privé avec un utilisateur)
-id_destinataire = "something"
+id_destinataire = "Something"
 
 #Initialisation du bot avec sa clé API
 bot = telegram.Bot(token=cleAPIbot())
@@ -55,8 +55,17 @@ bot = telegram.Bot(token=cleAPIbot())
 print(str(sys.argv))
 
 #On contrôle les arguments reçus et on adopte le comportement adapté
-if len(sys.argv) > 2: #Contrôle du nombre d'argument reçus (argument n°1: titre du script)
+if len(sys.argv) > 2: #Contrôle du nombre d'argument reçus (arg. n°1: titre du script, arg. n°2: type d'action à réaliser, arg. n°3,4,...: paramètres nécessaire à la fonction )
+
+	#Message texte
 	if sys.argv[1] == "texte":
 		envoyer_message(id_destinataire,sys.argv[2])
+
+	#Photo (une ou plusieurs)
 	if sys.argv[1] == "photo":
-		envoyer_photo(id_destinataire,sys.argv[2])
+		#On supprime les deux 1ers éléments du tableau (nom du script et l'argument "photo")
+		del sys.argv[0:2]
+
+		#Il ne nous reste alors que la liste des photos à envoyer, on boucle alors dessus
+		for photo in sys.argv:
+			envoyer_photo(id_destinataire,photo)
