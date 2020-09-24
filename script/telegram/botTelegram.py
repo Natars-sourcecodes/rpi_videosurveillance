@@ -14,7 +14,7 @@ def cleAPIbot():
 def command_handler(update, context):
 	global botActif
 	message = update.message
-	expediteur = message.from_user.username
+	expediteur = message.from_user.id
 	utilisateurValide = utilisateur_autorise(expediteur)
 	commandeRecue = message.text
 
@@ -93,10 +93,10 @@ def utilisateur_autorise(utilisateurRecherche):
 
 	for utilisateur in listeUtilisateur:
 		#On supprime le '\n' au bout de la ligne
-		utilisateur = str(utilisateur.rstrip())
+		utilisateur = utilisateur.rstrip()
 
 		#S'il s'agit de l'utilisateur recherché, on renvoie True
-		if utilisateur == utilisateurRecherche:
+		if str(utilisateur) == str(utilisateurRecherche):
 			return True
 
 	#Sinon, on renvoie False
