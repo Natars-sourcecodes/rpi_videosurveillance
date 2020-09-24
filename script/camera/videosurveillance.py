@@ -1,46 +1,42 @@
-# coding=utf-8
-
-import RPi.GPIO as GPIO
+#!/usr/bin/python coding: utf-8
 import os
-import time
 
-brocheCapteurPIR = 4
-presenceDetecte = False
-enregistrementVideo = False # True = vidéo ; False = photo
-nombreLigneAffichee = 25
-nombreMaxLigneAffichee = 24
+#On verifie que la bibliotheque necessaire soit installee
+try:
+	import RPi.GPIO as GPIO
 
-def init():
-	# Définition de la broche sur laquelle est connecté le capteur PIR
-	# et création de l'interruption
+except:
+	print("RPi.GPIO non installe, veuillez taper la commande suivante pour l'installer:")
+	print("sudo apt install rpi.gpio")
+	exit()
 
-	GPIO.setmode(GPIO.BCM) #BOARD = n° de broche, BCM = nom de la broche
-	GPIO.setup(brocheCapteurPIR, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #GPIO 4 en entrée
+#Fonction declenchee a chaque detection
+def presenceDetecte():
+	scriptEnvoiMessageTelegram = '/var/www/html/script/telegram/envoyerMessageTelegram.py'
 
-def prendrePhoto(): os.system('bash /var/www/html/script/camera/prendrePhoto.sh 2>&1 /dev/null')
-def prendreVideo(): os.system('bash /var/www/html/script/camera/prendreVideo.sh 2>&1 /dev/null')
-def alerteIFTTT(): os.system('bash /var/www/html/script/camera/envoyerAlerteIFTTT.sh 2>&1 /dev/null')
+	#On recupere la liste des noms des photos realisees
+	stream = os.popen('bash prendrePhoto.sh')
+	listePhoto = stream.read()
+	listePhoto = listePhoto.rstrip()
 
-if __name__ == '__main__':
-	init()
+	#On envoie les photos via le bot Telegram
+	os.system("/usr/bin/python3 %s photo %s" % (scriptEnvoiMessageTelegram, str(listePhoto)))
+
+### CODE PRINCIPAL ###
+
+pinBCM_capteurPIR = 4
+
+try:
+	#Parametrage de la pin utilisee par le capteur PIR
+	GPIO.setmode(GPIO.BCM)
+	GPIO.setup(pinBCM_capteurPIR, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+	print("Caméra prête")
 
 	while True:
-		if nombreLigneAffichee >= nombreMaxLigneAffichee:
-			os.system('clear')
-			print('Pour quitter: CTRL + MAJ + ANTISLASH\n')
-			nombreLigneAffichee = 1
+		#En attente d'une detection (d'un front montant(0->1) sur la pin du capteur PIR)
+		GPIO.wait_for_edge(pinBCM_capteurPIR, GPIO.RISING)
+		presenceDetecte()
 
-		#En attente d'un front montant (= nouvelle détection)
-		GPIO.wait_for_edge(brocheCapteurPIR, GPIO.RISING)
-
-		alerteIFTTT()
-		now = time.strftime("%d/%m/%Y %H:%M")
-		if enregistrementVideo == False:
-			prendrePhoto()
-			print(now + ": Nouvelle enregistrement photo")
-			nombreLigneAffichee += 1
-		else:
-			prendreVideo()
-                        print(now + ": Nouvelle enregistrement video")
-                        nombreLigneAffichee += 4
-	pass
+except KeyboardInterrupt:
+	GPIO.cleanup()
+	exit()
