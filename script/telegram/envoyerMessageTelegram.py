@@ -1,13 +1,15 @@
+#!/usr/bin/python
+# coding: utf-8
 #Python Telegram Bot
 #Documentation: https://python-telegram-bot.readthedocs.io
 
 import sys
 import os, os.path
-from datetime import datetime, timezone
+from datetime import datetime
 import telegram
 
 def cleAPIbot():
-	with open('cleAPI.txt', 'r') as fichierCleAPI:
+	with open('/var/www/html/script/telegram/cleAPI.txt', 'r') as fichierCleAPI:
 		cleAPI = fichierCleAPI.read()
 	return cleAPI
 
@@ -32,7 +34,7 @@ def envoyer_photo(id_utilisateur, chemin_vers_la_photo):
 
 #Fonction servant à enregistrer les activités du chat dans un fichier de log
 def journaliser_message(date_envoi,expediteur,id_expediteur,destinataire,id_destinataire,message):
-	nomFichierLOG = 'chat.log'
+	nomFichierLOG = '/var/www/html/script/telegram/chat.log'
 
 	#On prépare la ligne qui sera enregistrée dans le fichier de log
 	entree_journal_log = '"%s","None","%s","%s","%s","%s","%s"\n' % (date_envoi,expediteur,id_expediteur,destinataire,id_destinataire,message)
@@ -52,8 +54,6 @@ id_destinataire = "Something"
 #Initialisation du bot avec sa clé API
 bot = telegram.Bot(token=cleAPIbot())
 
-print(str(sys.argv))
-
 #On contrôle les arguments reçus et on adopte le comportement adapté
 if len(sys.argv) > 2: #Contrôle du nombre d'argument reçus (arg. n°1: titre du script, arg. n°2: type d'action à réaliser, arg. n°3,4,...: paramètres nécessaire à la fonction )
 
@@ -68,4 +68,4 @@ if len(sys.argv) > 2: #Contrôle du nombre d'argument reçus (arg. n°1: titre d
 
 		#Il ne nous reste alors que la liste des photos à envoyer, on boucle alors dessus
 		for photo in sys.argv:
-			envoyer_photo(id_destinataire,photo)
+			envoyer_photo(id_destinataire,str(photo))
