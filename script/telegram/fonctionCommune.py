@@ -32,6 +32,7 @@ def utilisateur_autorise(utilisateurRecherche):
 	#Sinon, on renvoie False
 	return False
 
+#Permet d'enregistrer chaque message reçu ou envoyé dans un fichier de log pour des raisons de contrôle/de surveillance
 def journaliser_message_chat(date_envoi,date_reception,expediteur,id_expediteur,destinataire,id_destinataire,message):
 	nomFichierLOG = '/var/www/html/script/telegram/chat.log'
 
