@@ -31,3 +31,18 @@ def utilisateur_autorise(utilisateurRecherche):
 
 	#Sinon, on renvoie False
 	return False
+
+def journaliser_message_chat(date_envoi,date_reception,expediteur,id_expediteur,destinataire,id_destinataire,message):
+	nomFichierLOG = '/var/www/html/script/telegram/chat.log'
+
+	#On prépare la ligne qui sera enregistrée dans le fichier de log
+	entree_journal_log = '"%s","%s","%s","%s","%s","%s","%s"\n' % (date_envoi,date_reception,expediteur,id_expediteur,destinataire,id_destinataire,message)
+
+	#Si le fichier de log n'existe pas, on le créé et on ajoute les titres des colonnes
+	if os.path.exists(nomFichierLOG) == False:
+		with open(nomFichierLOG,'w') as fichierLOG:
+			fichierLOG.write('"Date d\'envoi","Date de réception","Expéditeur","ID expéditeur","Destinataire","ID destinataire","Message"\n')
+
+	#Écriture de l'entrée dans le journal
+	with open(nomFichierLOG,'a') as fichierLOG:
+		fichierLOG.write(entree_journal_log)
