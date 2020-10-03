@@ -22,7 +22,7 @@ def presenceDetecte():
 		listePhoto = listePhoto.rstrip()
 
 		#On envoie les photos via le bot Telegram
-		os.system("/usr/bin/python3 %s photo %s" % (scriptEnvoiMessageTelegram, str(listePhoto)))
+		os.system("cd telegram && /usr/bin/python3 %s photo %s" % (scriptEnvoiMessageTelegram, str(listePhoto)))
 
 	elif type_enregistrement == 'video':
 		#On recupere la video realisee
