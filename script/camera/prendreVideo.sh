@@ -1,12 +1,18 @@
 #!/bin/bash
 
+#Génération du nom du fichier de sortie
 dateHeure=$(date +"%Y-%m-%d_%H:%M:%S")
 enregistrement="$dateHeure.mp4"
 
-raspivid -a 4 -a "%d/%m/%Y %X" -drc med -ex auto -t 60000 -w 1640 -h 1232 -fps 25 -vf -hf -o camera.h264 >> /dev/null
+#Enregistrement de la vidéo
+raspivid -a 4 -a "%d/%m/%Y %X" -drc med -ex auto -t 5000 -w 1640 -h 1232 -fps 25 -vf -hf -o camera.h264 >> /dev/null
 
-MP4Box -add camera.h264 $enregistrement
+#Conversion en MP4 et déplacement dans le dossier adéquat
+MP4Box -add camera.h264 $enregistrement >> /dev/null
 mv $enregistrement "video/$enregistrement"
+
+#Indication du nom du fichier de sortie
+echo "video/$enregistrement"
 
 #Système de péremption automatique des vidéos, non-actif, à étudier
 #at now+1 month <<< "rm video/$enregistrement"
