@@ -12,7 +12,7 @@ except:
 
 #Fonction declenchee a chaque detection
 def presenceDetecte():
-	scriptEnvoiMessageTelegram = '/var/www/html/script/telegram/envoyerMessageTelegram.py'
+	scriptEnvoiMessageTelegram = 'envoyerMessageTelegram.py'
 	type_enregistrement = 'video'
 
 	if type_enregistrement == 'photo':
@@ -31,7 +31,7 @@ def presenceDetecte():
 		video = video.rstrip()
 
 		#On envoie la video via le bot Telegram
-		os.system('/usr/bin/python3 %s video %s' % (scriptEnvoiMessageTelegram, str(video)))
+		os.system('cd telegram && /usr/bin/python3 %s video %s' % (scriptEnvoiMessageTelegram, str(video)))
 
 ### CODE PRINCIPAL ###
 
