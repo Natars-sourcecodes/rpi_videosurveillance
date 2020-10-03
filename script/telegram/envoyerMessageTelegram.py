@@ -44,9 +44,6 @@ def envoyer_video(id_utilisateur, chemin_vers_la_video):
 id_destinataire = "something"
 
 try:
-	print("Démarrage")
-	print(fonctionCommune.cle_api_bot())
-
 	#Initialisation du bot avec sa clé API
 	bot = telegram.Bot(token=fonctionCommune.cle_api_bot())
 
