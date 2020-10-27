@@ -1,28 +1,23 @@
 #Python Telegram Bot
 #Documentation: https://python-telegram-bot.readthedocs.io
 
+import fonctionCommune
 import os.path
 from datetime import datetime, timezone
 from telegram.ext import Updater, CommandHandler
 
-def cleAPIbot():
-	with open('cleAPI.txt', 'r') as fichierCleAPI:
-		cleAPI = fichierCleAPI.read()
-	return cleAPI
-
-#Interruption déclenchée à la réception de nouveau messages
+#Interruption declenchee a la reception de nouveau messages
 def command_handler(update, context):
-	global botActif
+	global botActif, infoBot
 	message = update.message
-	expediteur = message.from_user.id
-	utilisateurValide = utilisateur_autorise(expediteur)
+	expediteur = message.from_user
 	commandeRecue = message.text
 
-	#On journalise la commande reçue
-	journaliserMessage(date_utc_vers_local(message.date),expediteur,utilisateurValide,'bot',commandeRecue,datetime.now())
+	#On journalise la commande recue
+	fonctionCommune.journaliser_message_chat(message.date,datetime.now(),expediteur.username,expediteur.id,infoBot.username,infoBot.id,commandeRecue)
 
-	if utilisateurValide == True:
-		#On détermine l'action à faire en fonction de la commande
+	if fonctionCommune.utilisateur_autorise(expediteur.id) == True:
+		#On determine l'action a faire en fonction de la commande
 		if commandeRecue == '/start' and botActif == False:
 			botActif = True
 			envoyerMessage(update, 'activation_bot')
@@ -39,12 +34,13 @@ def command_handler(update, context):
 
 			envoyerMessage(update, 'statut_bot', statutBot)
 
-#Fonction chargée de l'envoi de message standardisé à un utilisateur
+#Fonction chargee de l'envoi de message standardise a un utilisateur
 def envoyerMessage(update, id_message, *parametre):
+	global infoBot
 	message = update.message
-	expediteur = message.from_user.username
+	expediteur = message.from_user
 
-	#On envoie le message standard en fonction de l'ID passé en argument
+	#On envoie le message standard en fonction de l'ID passe en argument
 	if id_message == 'activation_bot' :
 		messageBot = "Bot activé"
 
@@ -55,73 +51,37 @@ def envoyerMessage(update, id_message, *parametre):
 		messageBot = "Le bot est actuellement %s" % parametre[0]
 
 	message.reply_text(messageBot)
-	journaliserMessage(datetime.now(),'bot',True,expediteur,messageBot)
-
-#Fonction servant à enregistrer les activités du chat dans un fichier de log
-def journaliserMessage(date_envoi,expediteur,expediteur_valide,destinataire,message,date_reception=None):
-	nomFichierLOG = 'chat.log'
-
-	#On formate correctement les dates (retrait des millisecondes)
-	date_envoi = date_envoi.isoformat(" ","seconds")
-	if date_reception != None:
-		date_reception = date_reception.isoformat(" ","seconds")
-
-	#On prépare la ligne qui sera enregistrée dans le fichier de log
-	entree_journal_log = '"%s","%s","%s","%s","%s","%s"\n' % (date_envoi,date_reception,expediteur,destinataire,message,expediteur_valide)
-
-	#Si le fichier de log n'existe pas, on le créé et on inscrit les titres de colonnes
-	if os.path.exists(nomFichierLOG) == False:
-		with open(nomFichierLOG,'w') as fichierLOG:
-			fichierLOG.write('"Date d\'envoi","Date de réception","Expéditeur","Destinataire","Message","Expéditeur autorisé"\n')
-
-	#Écriture de l'entrée dans le journal
-	with open(nomFichierLOG,'a') as fichierLOG:
-		fichierLOG.write(entree_journal_log)
+	fonctionCommune.journaliser_message_chat(datetime.now(),None,infoBot.username,infoBot.id,expediteur.username,expediteur.id,messageBot)
 
 #Convertit une date/heure UTC en date/heure locale
 def date_utc_vers_local(date_utc):
 	date_locale = date_utc.replace(tzinfo=timezone.utc).astimezone(tz=None)
 	return date_locale.replace(tzinfo=None)
 
-#Vérifie si l'utilisateur spécifié est autorisé à dialoguer avec le bot
-def utilisateur_autorise(utilisateurRecherche):
-	nomFichierWhitelist = "whitelist.txt"
-
-	#On récupère la liste des utilisateurs autorisés
-	with open(nomFichierWhitelist, 'r') as fichierWhitelist:
-		listeUtilisateur = fichierWhitelist.readlines()
-
-	for utilisateur in listeUtilisateur:
-		#On supprime le '\n' au bout de la ligne
-		utilisateur = utilisateur.rstrip()
-
-		#S'il s'agit de l'utilisateur recherché, on renvoie True
-		if str(utilisateur) == str(utilisateurRecherche):
-			return True
-
-	#Sinon, on renvoie False
-	return False
-
 botActif = False
 commandesAutorises = ['start','stop', 'statut']
 
-#On essaie de démarrer le bot, en cas d'echec on arrête le script
+#On essaie de démarrer le bot, en cas d'echec on arrete le script
 try:
-	#Initialisation de l'updater avec la clé API du bot
-	updater = Updater(token=cleAPIbot(), use_context=True)
+	#Initialisation de l'updater avec la cle API du bot
+	cleAPI = fonctionCommune.cle_api_bot()
+	updater = Updater(token=cleAPI, use_context=True)
+
+	#On récupères les infos sur le bot
+	infoBot = updater.bot
 
 	#Configuration de la capture d'interruptions par le dispatcher
 	dispatcher = updater.dispatcher
 
-	#Ajout des différentes commandes pouvant réagir à l'interruption
+	#Ajout des differentes commandes pouvant reagir à l'interruption
 	dispatcher.add_handler(CommandHandler(commandesAutorises, command_handler))
 
-	#Démarrage du bot
+	#Demarrage du bot
 	updater.start_polling()
 	print("Bot démarré, en attente de messages...")
 
 except:
 	print("Erreur d'initialisation du bot, arrêt du script")
 
-#Empêche l'arrêt du script jusqu'à réception d'un signal d'arret (SIGINT, ...)
+#Empeche l'arret du script jusqu'a reception d'un signal d'arret (SIGINT, ...)
 updater.idle()
