@@ -1,5 +1,7 @@
+#coding: utf-8
+
 import os.path
-from datetime import datetime
+from datetime import datetime, timezone
 
 #Récupération de la clé API
 def cle_api_bot():
@@ -11,7 +13,8 @@ def cle_api_bot():
 #Convertit une date/heure UTC en date/heure locale
 def date_utc_vers_local(date_utc):
 	date_locale = date_utc.replace(tzinfo=timezone.utc).astimezone(tz=None)
-	return date_local.replace(tzinfo=None)
+	date_locale = date_locale.replace(tzinfo=None)
+	return date_locale.replace(microsecond=0)
 
 #Permet de rechercher un utilisateur parmis ceux autorisés à dialoguer avec le bot
 def utilisateur_autorise(utilisateurRecherche):
@@ -22,7 +25,7 @@ def utilisateur_autorise(utilisateurRecherche):
 		listeUtilisateur = fichierWhitelist.readlines()
 
 	#On supprime le '\n' au bout de chaque lignes
-	for utilissateur in listeUtilisateur:
+	for utilisateur in listeUtilisateur:
 		utilisateur = utilisateur.rstrip()
 
 	#S'il sagit de l'utilisateur recherché, on renvoie True
@@ -35,6 +38,11 @@ def utilisateur_autorise(utilisateurRecherche):
 #Permet d'enregistrer chaque message reçu ou envoyé dans un fichier de log pour des raisons de contrôle/de surveillance
 def journaliser_message_chat(date_envoi,date_reception,expediteur,id_expediteur,destinataire,id_destinataire,message):
 	nomFichierLOG = '/var/www/html/script/telegram/chat.log'
+
+	#On formate les date à la date/heure locale
+	date_envoi = date_utc_vers_local(date_envoi)
+	if date_reception != None:
+		date_reception = date_utc_vers_local(date_reception)
 
 	#On prépare la ligne qui sera enregistrée dans le fichier de log
 	entree_journal_log = '"%s","%s","%s","%s","%s","%s","%s"\n' % (date_envoi,date_reception,expediteur,id_expediteur,destinataire,id_destinataire,message)
