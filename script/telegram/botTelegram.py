@@ -53,11 +53,6 @@ def envoyerMessage(update, id_message, *parametre):
 	message.reply_text(messageBot)
 	fonctionCommune.journaliser_message_chat(datetime.now(),None,infoBot.username,infoBot.id,expediteur.username,expediteur.id,messageBot)
 
-#Convertit une date/heure UTC en date/heure locale
-def date_utc_vers_local(date_utc):
-	date_locale = date_utc.replace(tzinfo=timezone.utc).astimezone(tz=None)
-	return date_locale.replace(tzinfo=None)
-
 botActif = False
 commandesAutorises = ['start','stop', 'statut']
 
