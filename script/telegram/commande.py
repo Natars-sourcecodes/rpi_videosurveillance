@@ -1,3 +1,4 @@
+# coding: utf-8
 #Script contenant l'ensemble des commandes que le bot sait traiter
 
 import message
@@ -5,11 +6,11 @@ import os
 
 def start(update):
 	os.environ['TELEGRAM_BOT_ACTIF'] = 'True'
-	message.envoyer_texte(update, "Bot activé")
+	message.repondre_texte(update, "Bot activé")
 
 def stop(update):
 	os.environ['TELEGRAM_BOT_ACTIF'] = 'False'
-	message.envoyer_texte(update, "Bot désactivé")
+	message.repondre_texte(update, "Bot désactivé")
 
 def statut(update):
 	if os.environ.get('TELEGRAM_BOT_ACTIF') == 'True':
@@ -17,7 +18,7 @@ def statut(update):
 	else:
 		message_a_envoyer = "Bot inactif"
 
-	message.envoyer_texte(update, message_a_envoyer)
+	message.repondre_texte(update, message_a_envoyer)
 
 #On créé un dictionnaire dans lequel sont listées les commandes actives
 #Elles sont associé à la fonction correspondantes définie ci-dessus
