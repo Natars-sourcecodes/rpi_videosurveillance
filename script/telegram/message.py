@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 import os
 
 #Fonction chargée de l'envoi de message à un utilisateur
-def envoyer_texte(update, texte_a_envoyer):
+def repondre_texte(update, texte_a_envoyer):
 	message = update.message
 
 	#Le texte à envoyer
